@@ -3,6 +3,7 @@ import 'package:myapp/components/my_current_location.dart';
 import 'package:myapp/components/my_description_box.dart';
 import 'package:myapp/components/my_drawer.dart';
 import 'package:myapp/components/my_silver_app_bar.dart';
+import 'package:myapp/components/my_tab_bar.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -11,18 +12,35 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 3, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      drawer: MyDrawer(),
+      backgroundColor: Theme.of(context).colorScheme.secondary,
+      drawer: const MyDrawer(),
       body: NestedScrollView(
         headerSliverBuilder:
             (context, innerBoxIsScrolled) => [
               MySilverAppBar(
-                title: Text("title"),
+                title: MyTabBar(tabController: _tabController),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Divider(
                       indent: 25,
@@ -34,12 +52,15 @@ class _HomePageState extends State<HomePage> {
                     MyCurrentLocation(),
 
                     //description box
-                    MyDescriptionBox(),
+                    const MyDescriptionBox(),
                   ],
                 ), //
               ),
             ],
-        body: Container(color: Colors.blue), //
+        body: TabBarView(
+          controller: _tabController,
+          children: [Text("Hello"), Text("Hello"), Text("Hello")],
+        ), //
       ),
     );
   }

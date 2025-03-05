@@ -37,7 +37,7 @@ class MyCurrentLocation extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Deliver Now",
+            "Entrega en Curso",
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
           GestureDetector(
@@ -46,7 +46,7 @@ class MyCurrentLocation extends StatelessWidget {
               children: [
                 // address
                 Text(
-                  "1234 Sunset Blvd",
+                  "Oxxo Torres",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(context).colorScheme.inversePrimary,
