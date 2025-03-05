@@ -11,6 +11,12 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: AppBar(title: Text('Home')), drawer: MyDrawer());
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Home'),
+        backgroundColor: Theme.of(context).colorScheme.surface,
+      ),
+      drawer: MyDrawer(),
+    );
   }
 }
