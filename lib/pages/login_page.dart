@@ -25,7 +25,9 @@ class _LoginPageState extends State<LoginPage> {
 
     //navigate to home page
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomePage()));
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
   }
 
   @override
@@ -46,28 +48,35 @@ class _LoginPageState extends State<LoginPage> {
             SizedBox(height: 25),
 
             // message, app slogan
-            Text("MyPocketErp Delivery"),
+            Text(
+              "MyPocketErp Delivery",
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+
+            SizedBox(height: 25),
 
             // email input
             MyTextField(
-                controller: emailController,
-                hintText: "Email",
-                obscureText: false),
+              controller: emailController,
+              hintText: "Email",
+              obscureText: false,
+            ),
 
             SizedBox(height: 10),
             // password input
             MyTextField(
-                controller: passwordController,
-                hintText: "Contraseña",
-                obscureText: true),
+              controller: passwordController,
+              hintText: "Contraseña",
+              obscureText: true,
+            ),
 
             SizedBox(height: 10),
 
             // login button
-            MyButton(
-              text: "Sign In",
-              onTap: login,
-            ),
+            MyButton(text: "Sign In", onTap: login),
 
             SizedBox(height: 25),
 
@@ -91,9 +100,9 @@ class _LoginPageState extends State<LoginPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                )
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
