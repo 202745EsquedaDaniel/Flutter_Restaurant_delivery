@@ -8,8 +8,8 @@ class MyDrawerTile extends StatelessWidget {
   const MyDrawerTile({
     super.key,
     required this.text,
-    this.icon,
-    this.onTap, //
+    required this.icon,
+    required this.onTap,
   });
 
   @override
@@ -23,7 +23,7 @@ class MyDrawerTile extends StatelessWidget {
         ),
         leading: Icon(
           icon,
-          color: Theme.of(context).colorScheme.inversePrimary, //
+          color: Theme.of(context).colorScheme.inversePrimary,
         ),
         onTap: onTap,
       ),

@@ -1,28 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
+import 'package:myapp/models/restaurant.dart';
+import 'package:provider/provider.dart';
 
 class MyCurrentLocation extends StatelessWidget {
-  const MyCurrentLocation({super.key});
+  MyCurrentLocation({super.key});
+
+  final TextEditingController textController = TextEditingController();
 
   void openLocationSearchBox(BuildContext context) {
     showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text("Your Location"),
+            title: Text("Your location"),
             content: TextField(
-              decoration: InputDecoration(hintText: "Search address..."),
+              controller: textController,
+              decoration: InputDecoration(hintText: "Enter address..."),
             ),
             actions: [
               // cancel button
-              TextButton(
+              MaterialButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text("Cancel"),
+                child: const Text("Cancel"),
               ),
 
               // save button
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("Save"),
+              MaterialButton(
+                onPressed: () {
+                  // update delivery address
+                  String newAddress = textController.text;
+                  context.read<Restaurant>().updateDeliveryAddress(newAddress);
+                  Navigator.pop(context);
+                  textController.clear();
+                },
+                child: const Text("Save"),
               ),
             ],
           ),
@@ -37,7 +49,7 @@ class MyCurrentLocation extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Entrega en Curso",
+            "Deliver now",
             style: TextStyle(color: Theme.of(context).colorScheme.primary),
           ),
           GestureDetector(
@@ -45,15 +57,18 @@ class MyCurrentLocation extends StatelessWidget {
             child: Row(
               children: [
                 // address
-                Text(
-                  "Oxxo Torres",
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
+                Consumer<Restaurant>(
+                  builder:
+                      (context, restaurant, child) => Text(
+                        restaurant.deliveryAddress,
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                 ),
 
-                //drop down menu
+                // drop down menu
                 Icon(Icons.keyboard_arrow_down_rounded),
               ],
             ),

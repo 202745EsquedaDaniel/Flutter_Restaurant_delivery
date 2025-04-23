@@ -10,7 +10,7 @@ class SettingsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'), //
+        title: Text("Settings"),
         backgroundColor: Theme.of(context).colorScheme.surface,
       ),
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -19,14 +19,14 @@ class SettingsPage extends StatelessWidget {
           Container(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.secondary,
-              borderRadius: BorderRadius.circular(25),
+              borderRadius: BorderRadius.circular(12),
             ),
-            margin: const EdgeInsets.only(left: 25, top: 10, right: 25),
-            padding: const EdgeInsets.all(25),
+            margin: EdgeInsets.only(left: 25, top: 10, right: 25),
+            padding: EdgeInsets.all(25.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                // dark Mode
+                // dark mode
                 Text(
                   "Dark Mode",
                   style: TextStyle(
@@ -35,7 +35,7 @@ class SettingsPage extends StatelessWidget {
                   ),
                 ),
 
-                // Switch
+                //switch
                 CupertinoSwitch(
                   value:
                       Provider.of<ThemeProvider>(

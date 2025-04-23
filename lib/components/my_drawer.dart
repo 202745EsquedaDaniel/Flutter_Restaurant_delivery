@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/components/my_drawer_tile.dart';
 import 'package:myapp/pages/settings_page.dart';
+import 'package:myapp/services/auth/auth_service.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
+
+  void logout() {
+    final authService = AuthService();
+    authService.signOut();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,29 +19,25 @@ class MyDrawer extends StatelessWidget {
         children: [
           // app logo
           Padding(
-            padding: EdgeInsets.only(top: 100.0),
+            padding: const EdgeInsets.only(top: 100.0),
             child: Icon(
-              Icons.lock_clock_rounded,
+              Icons.lock_open_rounded,
               size: 80,
               color: Theme.of(context).colorScheme.inversePrimary,
             ),
           ),
 
           Padding(
-            padding: EdgeInsets.all(25.0),
-            child: Divider(
-              color: Theme.of(context).colorScheme.secondary, //
-            ),
+            padding: const EdgeInsets.all(25.0),
+            child: Divider(color: Theme.of(context).colorScheme.secondary),
           ),
 
-          //home list time
+          // home list tile
           MyDrawerTile(
-            text: "H O M E ",
+            text: "H O M E",
             icon: Icons.home,
-            onTap: () => Navigator.pop(context), //
+            onTap: () => Navigator.pop(context),
           ),
-
-          //settings list time
           MyDrawerTile(
             text: "S E T T I N G S",
             icon: Icons.settings,
@@ -43,21 +45,17 @@ class MyDrawer extends StatelessWidget {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => SettingsPage()),
+                MaterialPageRoute(builder: (context) => const SettingsPage()),
               );
             },
           ),
+          Spacer(),
+          MyDrawerTile(text: "L O G O U T", icon: Icons.logout, onTap: logout),
+          SizedBox(height: 25.0),
 
-          const Spacer(),
+          // settings list tile
 
           // logout list tile
-          MyDrawerTile(
-            text: "L O G O U T",
-            icon: Icons.logout,
-            onTap: () {}, //
-          ),
-
-          SizedBox(height: 25),
         ],
       ),
     );

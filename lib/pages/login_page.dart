@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:myapp/components/my_button.dart';
 import 'package:myapp/components/my_text_field.dart';
-import 'package:myapp/pages/home_page.dart';
+import 'package:myapp/services/auth/auth_service.dart';
+import 'package:lottie/lottie.dart';
 
 class LoginPage extends StatefulWidget {
-  final void Function() onTap;
+  final void Function()? onTap; // navigate to register page
 
   const LoginPage({super.key, required this.onTap});
 
@@ -13,21 +15,29 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  //  text Editing Controller
+  // text editing controller
   final TextEditingController emailController = TextEditingController();
-
   final TextEditingController passwordController = TextEditingController();
 
-  //login method
-  void login() {
-    print("Email: ${emailController.text}");
-    print("Password: ${passwordController.text}");
+  // login method
+  void login() async {
+    // get instance of auth service
+    final _authService = AuthService();
 
-    //navigate to home page
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage()),
-    );
+    // try sign in
+    try {
+      await _authService.signInWithEmailPassword(
+        emailController.text,
+        passwordController.text,
+      );
+    }
+    // display any errors
+    catch (e) {
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(title: Text(e.toString())),
+      );
+    }
   }
 
   @override
@@ -39,48 +49,37 @@ class _LoginPageState extends State<LoginPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             // logo
-            Icon(
-              Icons.delivery_dining_outlined,
-              size: 100,
-              color: Theme.of(context).colorScheme.inversePrimary,
-            ),
+            Lottie.asset("assets/login_kiosk.json", width: 100, height: 100),
 
-            SizedBox(height: 25),
+            const SizedBox(height: 10),
 
             // message, app slogan
-            Text(
-              "MyPocketErp Delivery",
-              style: TextStyle(
-                fontSize: 16,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
+            Text("My Pocket Delivery", style: TextStyle(fontSize: 16)),
 
-            SizedBox(height: 25),
+            const SizedBox(height: 25),
 
-            // email input
+            // email textfield
             MyTextField(
               controller: emailController,
               hintText: "Email",
               obscureText: false,
             ),
 
-            SizedBox(height: 10),
-            // password input
+            const SizedBox(height: 10),
+
+            // password textfield
             MyTextField(
               controller: passwordController,
-              hintText: "Contraseña",
+              hintText: "Password",
               obscureText: true,
             ),
+            const SizedBox(height: 25),
 
-            SizedBox(height: 10),
-
-            // login button
+            // sign in button
             MyButton(text: "Sign In", onTap: login),
+            const SizedBox(height: 25),
 
-            SizedBox(height: 25),
-
-            //not a member? sign up
+            // not a member? register now
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -92,9 +91,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(width: 4),
                 GestureDetector(
-                  onTap: widget.onTap,
+                  onTap: widget.onTap, // navigate to register page
                   child: Text(
-                    "Register Now",
+                    "Register now",
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.inversePrimary,
                       fontWeight: FontWeight.bold,

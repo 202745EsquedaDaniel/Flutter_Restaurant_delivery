@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:myapp/models/restaurant.dart';
+import 'package:myapp/pages/cart_page.dart';
+import 'package:provider/provider.dart';
 
 class MySilverAppBar extends StatelessWidget {
   final Widget child;
@@ -14,21 +17,59 @@ class MySilverAppBar extends StatelessWidget {
       pinned: true,
       actions: [
         // cart button
-        IconButton(icon: Icon(Icons.shopping_cart), onPressed: () {}),
+        Stack(
+          children: [
+            IconButton(
+              onPressed: () {
+                // go to cart page
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => CartPage()),
+                );
+              },
+              icon: Icon(Icons.shopping_cart),
+            ),
+
+            // Positioned badge to show item count
+            Positioned(
+              right: 0,
+              top: 0,
+              child: CircleAvatar(
+                radius: 10, // Size of the badge
+                backgroundColor: Colors.red, // Background color of the badge
+                child: Consumer<Restaurant>(
+                  builder: (context, restaurant, child) {
+                    // Get total item count from the restaurant model
+                    final itemCount = restaurant.getTotalItemCount();
+
+                    // Display item count as text in the badge
+                    return Text(
+                      itemCount.toString(),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12, // Font size of the badge text
+                        fontWeight: FontWeight.bold,
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
       backgroundColor: Theme.of(context).colorScheme.surface,
       foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: const Text("Chiwarrones"),
+      title: Text("Full with Breakfast"),
       flexibleSpace: FlexibleSpaceBar(
         background: Padding(
-          padding: EdgeInsets.only(bottom: 50.0),
+          padding: const EdgeInsets.only(bottom: 50),
           child: child,
-          //
         ),
         title: title,
         centerTitle: true,
-        titlePadding: EdgeInsets.only(left: 0, right: 0, top: 0),
-        expandedTitleScale: 1,
+        titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
       ),
     );
   }
