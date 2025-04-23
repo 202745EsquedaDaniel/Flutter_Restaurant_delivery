@@ -20,16 +20,31 @@ class _DeliveryProgressPageState extends State<DeliveryProgressPage> {
     super.initState();
 
     // if we get to this page, submit order to firestore db
-    String receipt = context.read<Restaurant>().displayCartReceipt();
-    db.saveOrderToDatabase(receipt);
+    // get receipt details from restaurant and save to db
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      String receipt = context.read<Restaurant>().displayCartReceipt();
+      db.saveOrderToDatabase(receipt);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(backgroundColor: Colors.transparent),
-      bottomNavigationBar: _buildBottomNavBar(context),
-      body: Column(children: [MyReceipt()]),
+      appBar: AppBar(
+        title: Text("Orden Confirmada"),
+        backgroundColor: Colors.transparent,
+        foregroundColor: Theme.of(context).colorScheme.inversePrimary,
+      ),
+      // bottomNavigationBar: _buildBottomNavBar(context),
+      body: SingleChildScrollView(
+        // Wrap the Column with SingleChildScrollView
+        child: Column(
+          children: [
+            MyReceipt(),
+            // Add other widgets here if needed, they will now be scrollable
+          ],
+        ),
+      ),
     );
   }
 

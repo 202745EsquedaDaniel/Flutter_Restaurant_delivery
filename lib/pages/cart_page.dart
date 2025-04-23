@@ -20,7 +20,7 @@ class CartPage extends StatelessWidget {
         // scaffold UI
         return Scaffold(
           appBar: AppBar(
-            title: Text("Cart"),
+            title: Text("Carrito"),
             backgroundColor: Colors.transparent,
             foregroundColor: Theme.of(context).colorScheme.inversePrimary,
             actions: [
@@ -87,8 +87,8 @@ class CartPage extends StatelessWidget {
               MyButton(
                 text:
                     totalPrice == '0.00'
-                        ? 'Go to checkout'
-                        : 'Go to checkout \$${totalPrice}',
+                        ? 'Ordenar'
+                        : 'Ordenar \$${totalPrice}',
                 onTap:
                     () =>
                         totalPrice != '0.00'

@@ -11,7 +11,7 @@ class MySilverAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SliverAppBar(
-      expandedHeight: 340,
+      expandedHeight: 240,
       collapsedHeight: 120,
       floating: false,
       pinned: true,
@@ -61,7 +61,7 @@ class MySilverAppBar extends StatelessWidget {
       ],
       backgroundColor: Theme.of(context).colorScheme.surface,
       foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Text("Full with Breakfast"),
+      title: Text("MyPocket Kiosko"),
       flexibleSpace: FlexibleSpaceBar(
         background: Padding(
           padding: const EdgeInsets.only(bottom: 50),

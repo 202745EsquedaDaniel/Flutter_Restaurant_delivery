@@ -9,7 +9,7 @@ class MyReceipt extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 25, right: 25, bottom: 25, top: 50),
+      padding: EdgeInsets.only(left: 25, right: 25, bottom: 25, top: 25),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -34,7 +34,7 @@ class MyReceipt extends StatelessWidget {
             ),
             SizedBox(height: 25),
             Text("Thank you for your order!"),
-            const Text("Estimated delivery time is: 4:10 PM"),
+            const Text("Te contactaremos pronto"),
           ],
         ),
       ),

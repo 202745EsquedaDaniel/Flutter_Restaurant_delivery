@@ -81,13 +81,14 @@ class _HomePageState extends State<HomePage>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Divider(
+                    /* Divider(
                       indent: 25,
                       endIndent: 25,
                       color: Theme.of(context).colorScheme.secondary,
                     ),
+*/
                     // my current location
-                    MyCurrentLocation(),
+                    // MyCurrentLocation(),
 
                     // description box
                     MyDescriptionBox(),
