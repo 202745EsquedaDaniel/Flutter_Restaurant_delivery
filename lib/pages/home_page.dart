@@ -19,7 +19,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage>
     with SingleTickerProviderStateMixin {
-  //tab controller
   late TabController _tabController;
 
   @override
@@ -28,7 +27,9 @@ class _HomePageState extends State<HomePage>
     _tabController = TabController(
       length: FoodCategory.values.length,
       vsync: this,
-    );
+    )..addListener(() {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -37,31 +38,19 @@ class _HomePageState extends State<HomePage>
     super.dispose();
   }
 
-  // sort out and return a list of food items that belong to a specific category
-  List<Food> _filterMenuByCategory(FoodCategory category, List<Food> fullMenu) {
-    return fullMenu.where((food) => food.category == category).toList();
-  }
-
-  // return list of foods in given category
   List<Widget> getFoodInThisCategory(List<Food> fullMenu) {
     return FoodCategory.values.map((category) {
-      // get category menu
-      List<Food> categoryMenu = _filterMenuByCategory(category, fullMenu);
-
+      final items = fullMenu.where((f) => f.category == category).toList();
       return ListView.builder(
-        itemCount: categoryMenu.length,
-        physics: const NeverScrollableScrollPhysics(),
+        itemCount: items.length,
         padding: EdgeInsets.zero,
-        itemBuilder: (context, index) {
-          // get individual food
-          final food = categoryMenu[index];
-          // return food tile UI
+        itemBuilder: (_, i) {
           return FoodTile(
-            food: food,
+            food: items[i],
             onTap:
                 () => Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FoodPage(food: food)),
+                  MaterialPageRoute(builder: (_) => FoodPage(food: items[i])),
                 ),
           );
         },
@@ -73,36 +62,56 @@ class _HomePageState extends State<HomePage>
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: MyDrawer(),
-      body: NestedScrollView(
-        headerSliverBuilder:
-            (context, innerBoxIsScrolled) => [
-              MySilverAppBar(
-                title: MyTabBar(tabController: _tabController),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    /* Divider(
-                      indent: 25,
-                      endIndent: 25,
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-*/
-                    // my current location
-                    // MyCurrentLocation(),
-
-                    // description box
-                    MyDescriptionBox(),
-                  ],
+      body: Consumer<Restaurant>(
+        builder:
+            (context, restaurant, _) => Row(
+              children: [
+                // barra vertical de categorías
+                NavigationRail(
+                  selectedIndex: _tabController.index,
+                  onDestinationSelected: _tabController.animateTo,
+                  labelType: NavigationRailLabelType.all,
+                  destinations:
+                      FoodCategory.values.map((cat) {
+                        final name = cat.toString().split('.').last;
+                        return NavigationRailDestination(
+                          icon: const Icon(Icons.fastfood_outlined),
+                          selectedIcon: const Icon(Icons.fastfood),
+                          label: Text(name),
+                        );
+                      }).toList(),
                 ),
-              ),
-            ],
-        body: Consumer<Restaurant>(
-          builder:
-              (context, restaurant, child) => TabBarView(
-                controller: _tabController,
-                children: getFoodInThisCategory(restaurant.menu),
-              ),
-        ),
+                const VerticalDivider(thickness: 1, width: 1),
+                // la parte derecha: slivers
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      // tu app bar con carrito y descripción
+                      MySilverAppBar(
+                        title: const SizedBox.shrink(),
+                        child: Builder(
+                          builder: (context) {
+                            final isPhone =
+                                MediaQuery.of(context).size.shortestSide < 600;
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [if (isPhone) MyDescriptionBox()],
+                            );
+                          },
+                        ),
+                      ),
+                      // aquí va el TabBarView llenando el resto
+                      SliverFillRemaining(
+                        child: TabBarView(
+                          controller: _tabController,
+                          children: getFoodInThisCategory(restaurant.menu),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
       ),
     );
   }

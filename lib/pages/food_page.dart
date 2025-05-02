@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:myapp/components/my_button.dart';
 import 'package:myapp/models/food.dart';
 import 'package:myapp/models/restaurant.dart';
+import 'package:myapp/responsive/constrained_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class FoodPage extends StatefulWidget {
@@ -44,7 +45,7 @@ class _FoodPageState extends State<FoodPage> {
     return Stack(
       children: [
         // scaffold UI
-        Scaffold(
+        ConstrainedScaffold(
           body: SingleChildScrollView(
             child: Column(
               children: [

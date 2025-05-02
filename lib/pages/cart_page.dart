@@ -5,6 +5,7 @@ import 'package:myapp/components/my_cart_tile.dart';
 import 'package:myapp/models/restaurant.dart';
 import 'package:myapp/pages/delivery_progress_page.dart';
 import 'package:myapp/pages/payment_page.dart';
+import 'package:myapp/responsive/constrained_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class CartPage extends StatelessWidget {
@@ -18,7 +19,7 @@ class CartPage extends StatelessWidget {
         final totalPrice = restaurant.getTotalPrice().toStringAsFixed(2);
 
         // scaffold UI
-        return Scaffold(
+        return ConstrainedScaffold(
           appBar: AppBar(
             title: Text("Carrito"),
             backgroundColor: Colors.transparent,
