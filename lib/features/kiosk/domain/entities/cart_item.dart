@@ -1,4 +1,4 @@
-import 'package:myapp/models/food.dart';
+import 'package:myapp/features/kiosk/domain/entities/food.dart';
 
 class CartItem {
   Food food;

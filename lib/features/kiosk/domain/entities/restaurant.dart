@@ -1,8 +1,8 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:myapp/models/cart_item.dart';
-import 'package:myapp/models/food.dart';
+import 'package:myapp/features/kiosk/domain/entities/cart_item.dart';
+import 'package:myapp/features/kiosk/domain/entities/food.dart';
 
 class Restaurant extends ChangeNotifier {
   // list of food menu

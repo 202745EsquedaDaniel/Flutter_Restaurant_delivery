@@ -44,37 +44,42 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAYEHepoiGEw6l8gn3_sXKW2n-BqFFBnl4',
-    appId: '1:626089529031:web:a611180be33ba5c314b8e2',
-    messagingSenderId: '626089529031',
-    projectId: 'delivery-test-a0bff',
-    authDomain: 'delivery-test-a0bff.firebaseapp.com',
-    storageBucket: 'delivery-test-a0bff.firebasestorage.app',
+    apiKey: 'AIzaSyBCoWXYO_5393mVqeE0HHIuIhicjmx8qQs',
+    appId: '1:185358176919:web:b6d298e2cf25ed6b678fd2',
+    messagingSenderId: '185358176919',
+    projectId: 'mypocketerp',
+    authDomain: 'mypocketerp.firebaseapp.com',
+    storageBucket: 'mypocketerp.firebasestorage.app',
+    measurementId: 'G-5F7DP3WFM9',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBg8b6WI9h_qCYZDUn6EBQR5s11JMFaY0U',
-    appId: '1:626089529031:android:1e13bc94cb14451514b8e2',
-    messagingSenderId: '626089529031',
-    projectId: 'delivery-test-a0bff',
-    storageBucket: 'delivery-test-a0bff.firebasestorage.app',
+    apiKey: 'AIzaSyAbrK8xrc7OLWk3G135ujQXEtdTpX8VEG0',
+    appId: '1:185358176919:android:8ab139d2fd39b7c5678fd2',
+    messagingSenderId: '185358176919',
+    projectId: 'mypocketerp',
+    storageBucket: 'mypocketerp.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBp7iJNYuGVTXYoYj5vhSBdB8w2yDZjhkA',
-    appId: '1:626089529031:ios:74006d44a15402d414b8e2',
-    messagingSenderId: '626089529031',
-    projectId: 'delivery-test-a0bff',
-    storageBucket: 'delivery-test-a0bff.firebasestorage.app',
-    iosBundleId: 'c',
+    apiKey: 'AIzaSyDLTWclnCVLwVOXlhJply0iRtXbVJ-rOPE',
+    appId: '1:185358176919:ios:3da806fd75e38912678fd2',
+    messagingSenderId: '185358176919',
+    projectId: 'mypocketerp',
+    storageBucket: 'mypocketerp.firebasestorage.app',
+    androidClientId: '185358176919-b926q5a38cqvrrjro5msbc49l144dnj4.apps.googleusercontent.com',
+    iosClientId: '185358176919-nc4nguioqckf5atjdubi42fv8igbjqdn.apps.googleusercontent.com',
+    iosBundleId: 'con.mypocket.sales',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAYEHepoiGEw6l8gn3_sXKW2n-BqFFBnl4',
-    appId: '1:626089529031:web:fc14c0df75b9141414b8e2',
-    messagingSenderId: '626089529031',
-    projectId: 'delivery-test-a0bff',
-    authDomain: 'delivery-test-a0bff.firebaseapp.com',
-    storageBucket: 'delivery-test-a0bff.firebasestorage.app',
+    apiKey: 'AIzaSyBCoWXYO_5393mVqeE0HHIuIhicjmx8qQs',
+    appId: '1:185358176919:web:0390e1c559fefb03678fd2',
+    messagingSenderId: '185358176919',
+    projectId: 'mypocketerp',
+    authDomain: 'mypocketerp.firebaseapp.com',
+    storageBucket: 'mypocketerp.firebasestorage.app',
+    measurementId: 'G-QSKPL7R224',
   );
+
 }

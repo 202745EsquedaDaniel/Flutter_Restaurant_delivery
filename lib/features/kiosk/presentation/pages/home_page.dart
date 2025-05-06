@@ -5,19 +5,19 @@ import 'package:myapp/components/my_drawer.dart';
 import 'package:myapp/components/my_food_tile.dart';
 import 'package:myapp/components/my_silver_app_bar.dart';
 import 'package:myapp/components/my_tab_bar.dart';
-import 'package:myapp/models/food.dart';
-import 'package:myapp/models/restaurant.dart';
-import 'package:myapp/pages/food_page.dart';
+import 'package:myapp/features/kiosk/domain/entities/food.dart';
+import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
+import 'package:myapp/features/kiosk/presentation/pages/food_page.dart';
 import 'package:provider/provider.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class HomeKioskPage extends StatefulWidget {
+  const HomeKioskPage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<HomeKioskPage> createState() => _HomeKioskPageState();
 }
 
-class _HomePageState extends State<HomePage>
+class _HomeKioskPageState extends State<HomeKioskPage>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 

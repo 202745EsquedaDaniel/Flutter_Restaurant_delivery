@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/components/my_drawer_tile.dart';
+import 'package:myapp/features/pos/presentation/pages/POS_page.dart';
 import 'package:myapp/pages/settings_page.dart';
 import 'package:myapp/services/auth/auth_service.dart';
 
@@ -34,9 +35,21 @@ class MyDrawer extends StatelessWidget {
 
           // home list tile
           MyDrawerTile(
-            text: "H O M E",
-            icon: Icons.home,
+            text: "K I O S K O",
+            icon: Icons.drive_eta,
             onTap: () => Navigator.pop(context),
+          ),
+          // POS VIEW
+          MyDrawerTile(
+            text: "P O S",
+            icon: Icons.point_of_sale,
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const POSPage()),
+              );
+            },
           ),
           MyDrawerTile(
             text: "S E T T I N G S",

@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:myapp/firebase_options.dart';
-import 'package:myapp/models/restaurant.dart';
+import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
 import 'package:myapp/services/auth/auth_gate.dart';
 import 'package:myapp/themes/theme_provider.dart';
 import 'package:provider/provider.dart';

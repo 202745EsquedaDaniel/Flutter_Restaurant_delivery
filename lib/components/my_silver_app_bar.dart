@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/models/restaurant.dart';
-import 'package:myapp/pages/cart_page.dart';
+import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
+import 'package:myapp/features/kiosk/presentation/pages/cart_page.dart';
 import 'package:provider/provider.dart';
 
 class MySilverAppBar extends StatelessWidget {

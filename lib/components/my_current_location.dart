@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:myapp/models/restaurant.dart';
+import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
 import 'package:provider/provider.dart';
 
 class MyCurrentLocation extends StatelessWidget {

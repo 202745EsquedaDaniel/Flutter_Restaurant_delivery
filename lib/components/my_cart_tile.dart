@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myapp/components/my_quantity_selector.dart';
-import 'package:myapp/models/cart_item.dart';
-import 'package:myapp/models/restaurant.dart';
+import 'package:myapp/features/kiosk/domain/entities/cart_item.dart';
+import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
 import 'package:provider/provider.dart';
 
 class MyCartTile extends StatelessWidget {
