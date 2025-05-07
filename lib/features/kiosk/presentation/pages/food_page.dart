@@ -2,9 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:myapp/components/my_button.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
 import 'package:myapp/features/kiosk/domain/entities/food.dart';
 import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
-import 'package:myapp/responsive/constrained_scaffold.dart';
+import 'package:myapp/features/kiosk/presentation/components/constrained_scaffold.dart';
 import 'package:provider/provider.dart';
 
 class FoodPage extends StatefulWidget {
@@ -37,7 +38,7 @@ class _FoodPageState extends State<FoodPage> {
     }
 
     // add to cart
-    context.read<Restaurant>().addToCart(food, currentlySelectedAddons);
+    context.read<RestaurantCubit>().addToCart(food, currentlySelectedAddons);
   }
 
   @override

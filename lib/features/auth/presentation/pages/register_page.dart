@@ -1,131 +1,161 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/components/my_button.dart';
-import 'package:myapp/components/my_text_field.dart';
-import 'package:myapp/services/auth/auth_service.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myapp/features/auth/presentation/components/my_button.dart';
+import 'package:myapp/features/auth/presentation/components/my_text_field.dart';
+import 'package:myapp/features/auth/presentation/cubits/auth_cubit.dart';
+import 'package:myapp/features/kiosk/presentation/components/constrained_scaffold.dart';
 
 class RegisterPage extends StatefulWidget {
   final void Function()? onTap;
 
-  const RegisterPage({super.key, required this.onTap});
+  const RegisterPage({super.key, this.onTap});
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  //  text Editing Controller
+  final nameController = TextEditingController();
+  final emailController = TextEditingController();
+  final passwordController = TextEditingController();
+  final confirmPasswordController = TextEditingController();
 
-  // register method
-  void register() async {
-    // get auth service
-    final _authService = AuthService();
+  void register() {
+    //  prepare info
+    final String name = nameController.text;
+    final String email = emailController.text;
+    final String password = passwordController.text;
+    final String confirmPassword = confirmPasswordController.text;
 
-    // check if password match -> create user
-    if (passwordController.text == confirmPasswordController.text) {
-      // try creating user
-      try {
-        await _authService.signUpWithEmailPassword(
-          emailController.text,
-          passwordController.text,
-        );
-      }
-      // display any errors
-      catch (e) {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(title: Text(e.toString())),
+    //  auth cubit
+    final authCubit = context.read<AuthCubit>();
+
+    //  ensure the fields aren't empty
+    if (email.isNotEmpty &&
+        name.isNotEmpty &&
+        password.isNotEmpty &&
+        confirmPassword.isNotEmpty) {
+      //  ensure passwords match
+      if (password == confirmPassword) {
+        authCubit.register(name, email, password);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Passwords do not match!")),
         );
       }
     }
-    // if passwords don't match -> show error
+    // fields are empty -> display error
     else {
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(title: Text("Password don't match!")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Please enter all fields")));
     }
+  }
+
+  // Suggested code may be subject to a license. Learn more: ~LicenseLog:3764799691.
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // logo
-            Icon(
-              Icons.lock_open_rounded,
-              size: 100,
-              color: Theme.of(context).colorScheme.inversePrimary,
-            ),
-            const SizedBox(height: 10),
-
-            // message, app slogan
-            Text(
-              "Let's create an account for you",
-              style: TextStyle(fontSize: 16),
-            ),
-
-            const SizedBox(height: 25),
-
-            // email textfield
-            MyTextField(
-              controller: emailController,
-              hintText: "Email",
-              obscureText: false,
-            ),
-
-            const SizedBox(height: 10),
-
-            // password textfield
-            MyTextField(
-              controller: passwordController,
-              hintText: "Password",
-              obscureText: true,
-            ),
-            const SizedBox(height: 10),
-
-            // confirm password textfield
-            MyTextField(
-              controller: confirmPasswordController,
-              hintText: "Confirm password",
-              obscureText: true,
-            ),
-            const SizedBox(height: 25),
-
-            // sign up button
-            MyButton(text: "Sign Up", onTap: register),
-            const SizedBox(height: 25),
-
-            // already have an account?
-            Row(
+    return ConstrainedScaffold(
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25),
+            child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  "already have an account?",
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.inversePrimary,
-                  ),
+                // logo
+                Icon(
+                  Icons.lock_open_rounded,
+                  size: 100,
+                  color: Theme.of(context).colorScheme.inversePrimary,
                 ),
-                SizedBox(width: 4),
-                GestureDetector(
-                  onTap: widget.onTap, // navigate to register page
-                  child: Text(
-                    "Login now",
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.inversePrimary,
-                      fontWeight: FontWeight.bold,
+
+                const SizedBox(height: 25),
+
+                // message, app slogan
+                const Text("Let´s get started"),
+
+                const SizedBox(height: 25),
+
+                // name input
+                MyTextField(
+                  controller: nameController,
+                  hintText: "Name",
+                  obscureText: false,
+                  label: "Nombre Completo",
+                ),
+
+                const SizedBox(height: 10),
+
+                // email input
+                MyTextField(
+                  controller: emailController,
+                  hintText: "Email",
+                  obscureText: false,
+                  label: "Email",
+                ),
+
+                const SizedBox(height: 10),
+                // password input
+                MyTextField(
+                  controller: passwordController,
+                  hintText: "Contraseña",
+                  obscureText: true,
+                  label: "Contraseña",
+                ),
+
+                const SizedBox(height: 10),
+
+                // Confirm password input
+                MyTextField(
+                  controller: confirmPasswordController,
+                  hintText: "Confirm Password",
+                  obscureText: true,
+                  label: "Confirmar Contraseña",
+                ),
+
+                const SizedBox(height: 10),
+
+                // login button
+                MyButton(text: "Sign Up", onTap: register),
+
+                const SizedBox(height: 25),
+
+                //Already have an account? login Here
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already have an account?",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 4),
+                    GestureDetector(
+                      onTap: widget.onTap,
+                      child: Text(
+                        "Login Now",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.inversePrimary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_states.dart';
+
 import 'package:myapp/features/kiosk/presentation/pages/cart_page.dart';
-import 'package:provider/provider.dart';
 
 class MySilverAppBar extends StatelessWidget {
   final Widget child;
@@ -16,44 +18,46 @@ class MySilverAppBar extends StatelessWidget {
       floating: false,
       pinned: true,
       actions: [
-        // cart button
+        // cart button with badge
         Stack(
           children: [
             IconButton(
               onPressed: () {
-                // go to cart page
-
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => CartPage()),
+                  MaterialPageRoute(builder: (_) => const CartPage()),
                 );
               },
-              icon: Icon(Icons.shopping_cart),
+              icon: const Icon(Icons.shopping_cart),
             ),
 
-            // Positioned badge to show item count
+            // badge with item count
             Positioned(
               right: 0,
               top: 0,
-              child: CircleAvatar(
-                radius: 10, // Size of the badge
-                backgroundColor: Colors.red, // Background color of the badge
-                child: Consumer<Restaurant>(
-                  builder: (context, restaurant, child) {
-                    // Get total item count from the restaurant model
-                    final itemCount = restaurant.getTotalItemCount();
+              child: BlocBuilder<RestaurantCubit, RestaurantState>(
+                builder: (context, state) {
+                  final itemCount =
+                      state is RestaurantLoaded
+                          ? state.cart.fold(
+                            0,
+                            (sum, item) => sum + item.quantity,
+                          )
+                          : 0;
 
-                    // Display item count as text in the badge
-                    return Text(
+                  return CircleAvatar(
+                    radius: 10,
+                    backgroundColor: Colors.red,
+                    child: Text(
                       itemCount.toString(),
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Colors.white,
-                        fontSize: 12, // Font size of the badge text
+                        fontSize: 12,
                         fontWeight: FontWeight.bold,
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
             ),
           ],
@@ -61,7 +65,7 @@ class MySilverAppBar extends StatelessWidget {
       ],
       backgroundColor: Theme.of(context).colorScheme.surface,
       foregroundColor: Theme.of(context).colorScheme.inversePrimary,
-      title: Text("MyPocket Kiosko"),
+      title: const Text("MyPocket Kiosko"),
       flexibleSpace: FlexibleSpaceBar(
         background: Padding(
           padding: const EdgeInsets.only(bottom: 50),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_states.dart';
 
 class MyCurrentLocation extends StatelessWidget {
   MyCurrentLocation({super.key});
@@ -13,24 +13,24 @@ class MyCurrentLocation extends StatelessWidget {
       context: context,
       builder:
           (context) => AlertDialog(
-            title: Text("Your location"),
+            title: const Text("Your location"),
             content: TextField(
               controller: textController,
-              decoration: InputDecoration(hintText: "Enter address..."),
+              decoration: const InputDecoration(hintText: "Enter address..."),
             ),
             actions: [
-              // cancel button
               MaterialButton(
                 onPressed: () => Navigator.pop(context),
                 child: const Text("Cancel"),
               ),
-
-              // save button
               MaterialButton(
                 onPressed: () {
-                  // update delivery address
-                  String newAddress = textController.text;
-                  context.read<Restaurant>().updateDeliveryAddress(newAddress);
+                  final newAddress = textController.text.trim();
+                  if (newAddress.isNotEmpty) {
+                    context.read<RestaurantCubit>().updateDeliveryAddress(
+                      newAddress,
+                    );
+                  }
                   Navigator.pop(context);
                   textController.clear();
                 },
@@ -56,20 +56,20 @@ class MyCurrentLocation extends StatelessWidget {
             onTap: () => openLocationSearchBox(context),
             child: Row(
               children: [
-                // address
-                Consumer<Restaurant>(
-                  builder:
-                      (context, restaurant, child) => Text(
-                        restaurant.deliveryAddress,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.inversePrimary,
-                          fontWeight: FontWeight.bold,
-                        ),
+                // address from cubit
+                BlocBuilder<RestaurantCubit, RestaurantState>(
+                  builder: (context, state) {
+                    if (state is! RestaurantLoaded) return const Text("...");
+                    return Text(
+                      state.deliveryAddress,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.inversePrimary,
+                        fontWeight: FontWeight.bold,
                       ),
+                    );
+                  },
                 ),
-
-                // drop down menu
-                Icon(Icons.keyboard_arrow_down_rounded),
+                const Icon(Icons.keyboard_arrow_down_rounded),
               ],
             ),
           ),

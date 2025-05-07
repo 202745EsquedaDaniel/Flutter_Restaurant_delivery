@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myapp/components/my_current_location.dart';
 import 'package:myapp/components/my_description_box.dart';
 import 'package:myapp/components/my_drawer.dart';
 import 'package:myapp/components/my_food_tile.dart';
 import 'package:myapp/components/my_silver_app_bar.dart';
 import 'package:myapp/components/my_tab_bar.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
+import 'package:myapp/features/catalog/presentation/cubits/restaurant_states.dart';
 import 'package:myapp/features/kiosk/domain/entities/food.dart';
-import 'package:myapp/features/kiosk/domain/entities/restaurant.dart';
 import 'package:myapp/features/kiosk/presentation/pages/food_page.dart';
-import 'package:provider/provider.dart';
 
 class HomeKioskPage extends StatefulWidget {
   const HomeKioskPage({super.key});
@@ -62,11 +63,11 @@ class _HomeKioskPageState extends State<HomeKioskPage>
   Widget build(BuildContext context) {
     return Scaffold(
       drawer: MyDrawer(),
-      body: Consumer<Restaurant>(
-        builder:
-            (context, restaurant, _) => Row(
+      body: BlocBuilder<RestaurantCubit, RestaurantState>(
+        builder: (context, state) {
+          if (state is RestaurantLoaded) {
+            return Row(
               children: [
-                // barra vertical de categorías
                 NavigationRail(
                   selectedIndex: _tabController.index,
                   onDestinationSelected: _tabController.animateTo,
@@ -82,11 +83,9 @@ class _HomeKioskPageState extends State<HomeKioskPage>
                       }).toList(),
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
-                // la parte derecha: slivers
                 Expanded(
                   child: CustomScrollView(
                     slivers: [
-                      // tu app bar con carrito y descripción
                       MySilverAppBar(
                         title: const SizedBox.shrink(),
                         child: Builder(
@@ -100,18 +99,23 @@ class _HomeKioskPageState extends State<HomeKioskPage>
                           },
                         ),
                       ),
-                      // aquí va el TabBarView llenando el resto
                       SliverFillRemaining(
                         child: TabBarView(
                           controller: _tabController,
-                          children: getFoodInThisCategory(restaurant.menu),
+                          children: getFoodInThisCategory(state.menu), // ✅ AQUI
                         ),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
+            );
+          } else if (state is RestaurantError) {
+            return Center(child: Text(state.message));
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
+        },
       ),
     );
   }
