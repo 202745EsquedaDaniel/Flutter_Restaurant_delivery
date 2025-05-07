@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:myapp/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/restaurant_states.dart';
 import 'package:myapp/features/pos/presentation/components/items_POS_order.dart';
+import 'package:myapp/features/pos/presentation/components/pos_header.dart';
+import 'package:myapp/features/pos/presentation/components/pos_search_box.dart';
 import 'package:myapp/features/pos/presentation/components/product_POS_tile.dart';
 import 'package:myapp/features/kiosk/domain/entities/food.dart';
 
@@ -14,6 +17,8 @@ class HomePosPage extends StatefulWidget {
 }
 
 class _HomePosPageState extends State<HomePosPage> {
+  // auth cubit
+  late final authCubit = context.read<AuthCubit>();
   FoodCategory selectedCategory = FoodCategory.burgers;
 
   Widget _row(String label, double value) {
@@ -44,16 +49,111 @@ class _HomePosPageState extends State<HomePosPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Carrito a la izquierda
+        Expanded(
+          flex: 5,
+          child: Column(
+            children: [
+              PosHeader(
+                title: 'Hola ${authCubit.currentUser?.name}!',
+                subTitle: 'Table 8',
+                child: Container(),
+              ),
+
+              const SizedBox(height: 20),
+              Expanded(
+                child: ListView(
+                  children: [
+                    BlocBuilder<RestaurantCubit, RestaurantState>(
+                      builder: (context, state) {
+                        if (state is! RestaurantLoaded)
+                          return const SizedBox.shrink();
+                        return Column(
+                          children:
+                              state.cart.map((item) {
+                                return OrderPosItem(
+                                  image: item.food.imagePath,
+                                  title: item.food.name,
+                                  qty: item.quantity.toString(),
+                                  price:
+                                      '\$${item.food.price.toStringAsFixed(2)}',
+                                );
+                              }).toList(),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(14),
+                    color: const Color(0xff1f2029),
+                  ),
+                  child: Column(
+                    children: [
+                      BlocBuilder<RestaurantCubit, RestaurantState>(
+                        builder: (context, state) {
+                          if (state is! RestaurantLoaded)
+                            return const SizedBox.shrink();
+                          final subtotal = state.cart.fold(0.0, (total, item) {
+                            double itemTotal = item.food.price;
+                            for (final addon in item.selectedAddons) {
+                              itemTotal += addon.price;
+                            }
+                            return total + (itemTotal * item.quantity);
+                          });
+                          return Column(children: [_row('Total', subtotal)]);
+                        },
+                      ),
+                      const SizedBox(height: 30),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          context.read<RestaurantCubit>().clearCart();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Carrito vaciado'),
+                              backgroundColor: Colors.redAccent,
+                            ),
+                          );
+                        },
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: const [
+                            Icon(Icons.print, size: 16),
+                            SizedBox(width: 6),
+                            Text('Vaciar Carrito'),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+        Expanded(flex: 1, child: Container()),
+        // Catálogo a la derecha
         Expanded(
           flex: 14,
           child: Column(
             children: [
-              _topMenu(
+              PosHeader(
                 title: 'Lorem Restaurant',
                 subTitle: 'Hola 2!',
-                action: _search(),
+                child: const PosSearchBox(),
               ),
-              // 🔽 Categoría dinámica
+
               Container(
                 height: 100,
                 padding: const EdgeInsets.symmetric(vertical: 24),
@@ -64,7 +164,6 @@ class _HomePosPageState extends State<HomePosPage> {
                         final name = cat.toString().split('.').last;
                         final iconPath = 'icons/icon-${name.toLowerCase()}.png';
                         final isActive = selectedCategory == cat;
-
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 6.0),
                           child: GestureDetector(
@@ -114,20 +213,16 @@ class _HomePosPageState extends State<HomePosPage> {
                       }).toList(),
                 ),
               ),
-
-              // 🔽 Productos filtrados
               Expanded(
                 child: BlocBuilder<RestaurantCubit, RestaurantState>(
                   builder: (context, state) {
                     if (state is! RestaurantLoaded) {
                       return const Center(child: CircularProgressIndicator());
                     }
-
                     final products =
                         state.menu
                             .where((f) => f.category == selectedCategory)
                             .toList();
-
                     return GridView.count(
                       crossAxisCount: 4,
                       childAspectRatio: (1 / 1.2),
@@ -163,155 +258,7 @@ class _HomePosPageState extends State<HomePosPage> {
             ],
           ),
         ),
-        Expanded(flex: 1, child: Container()),
-        Expanded(
-          flex: 5,
-          child: Column(
-            children: [
-              _topMenu(
-                title: 'Order',
-                subTitle: 'Table 8',
-                action: Container(),
-              ),
-              const SizedBox(height: 20),
-              Expanded(
-                child: ListView(
-                  children: [
-                    BlocBuilder<RestaurantCubit, RestaurantState>(
-                      builder: (context, state) {
-                        if (state is! RestaurantLoaded)
-                          return const SizedBox.shrink();
-                        return Column(
-                          children:
-                              state.cart.map((item) {
-                                return OrderPosItem(
-                                  image: item.food.imagePath,
-                                  title: item.food.name,
-                                  qty: item.quantity.toString(),
-                                  price:
-                                      '\$${item.food.price.toStringAsFixed(2)}',
-                                );
-                              }).toList(),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: const Color(0xff1f2029),
-                  ),
-                  child: Column(
-                    children: [
-                      BlocBuilder<RestaurantCubit, RestaurantState>(
-                        builder: (context, state) {
-                          if (state is! RestaurantLoaded)
-                            return const SizedBox.shrink();
-
-                          final subtotal = state.cart.fold(0.0, (total, item) {
-                            double itemTotal = item.food.price;
-                            for (final addon in item.selectedAddons) {
-                              itemTotal += addon.price;
-                            }
-                            return total + (itemTotal * item.quantity);
-                          });
-
-                          return Column(children: [_row('Total', subtotal)]);
-                        },
-                      ),
-                      const SizedBox(height: 30),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          context.read<RestaurantCubit>().clearCart();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Carrito vaciado'),
-                              backgroundColor: Colors.redAccent,
-                            ),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.print, size: 16),
-                            SizedBox(width: 6),
-                            Text('Vaciar Carrito'),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
       ],
-    );
-  }
-
-  Widget _topMenu({
-    required String title,
-    required String subTitle,
-    required Widget action,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              subTitle,
-              style: const TextStyle(color: Colors.white54, fontSize: 10),
-            ),
-          ],
-        ),
-        Expanded(flex: 1, child: Container()),
-        Expanded(flex: 5, child: action),
-      ],
-    );
-  }
-
-  Widget _search() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      height: 40,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(18),
-        color: const Color(0xff1f2029),
-      ),
-      child: Row(
-        children: const [
-          Icon(Icons.search, color: Colors.white54),
-          SizedBox(width: 10),
-          Text(
-            'Buscar en el menu aqui...',
-            style: TextStyle(color: Colors.white54, fontSize: 11),
-          ),
-        ],
-      ),
     );
   }
 }
