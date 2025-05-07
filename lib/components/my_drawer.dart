@@ -3,7 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myapp/components/my_drawer_tile.dart';
 import 'package:myapp/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:myapp/features/kiosk/presentation/pages/settings_page.dart';
-import 'package:myapp/features/pos/presentation/pages/POS_page.dart';
+import 'package:myapp/features/pos/presentation/pages/MainPosPage.dart';
+import 'package:myapp/features/pos/presentation/pages/homePosPage.dart';
 
 class MyDrawer extends StatelessWidget {
   const MyDrawer({super.key});
@@ -54,7 +55,7 @@ class MyDrawer extends StatelessWidget {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const POSPage()),
+                    MaterialPageRoute(builder: (context) => const PosPage()),
                   );
                 },
               ),
