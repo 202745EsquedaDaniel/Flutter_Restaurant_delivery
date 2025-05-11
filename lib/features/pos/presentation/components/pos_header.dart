@@ -25,14 +25,14 @@ class PosHeader extends StatelessWidget {
               title,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 20,
+                fontSize: 24,
                 fontWeight: FontWeight.bold,
               ),
             ),
             const SizedBox(height: 6),
             Text(
               subTitle,
-              style: const TextStyle(color: Colors.white54, fontSize: 10),
+              style: const TextStyle(color: Colors.white54, fontSize: 16),
             ),
           ],
         ),

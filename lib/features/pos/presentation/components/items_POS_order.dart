@@ -50,10 +50,11 @@ class OrderPosItem extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 10),
+
                 Text(
-                  price,
+                  'x $qty',
                   style: const TextStyle(
-                    fontSize: 14,
+                    fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
                   ),
@@ -62,9 +63,9 @@ class OrderPosItem extends StatelessWidget {
             ),
           ),
           Text(
-            '$qty x',
+            price,
             style: const TextStyle(
-              fontSize: 16,
+              fontSize: 14,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),

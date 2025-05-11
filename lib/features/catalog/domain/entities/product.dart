@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:myapp/features/catalog/domain/entities/packageItem.dart';
 import 'package:myapp/features/catalog/domain/entities/supplies.dart';
@@ -69,12 +71,11 @@ class Product {
       'costo': costo,
       'precio': price,
       'stock': stock,
-      'inventarioMinimo': inventarioMinimo,
       'unidad': unidad,
       'packageProducts': packageProducts?.map((e) => e.toJson()).toList(),
       'supplies': supplies?.map((e) => e.toJson()).toList(),
       'imageUrl': imageUrl,
-      'timestamp': Timestamp.fromDate(timestamp),
+      'timestamp': timestamp.toIso8601String(),
     };
   }
 
@@ -87,13 +88,16 @@ class Product {
       name: json['name'],
       description: json['description'],
       categoria: json['categoria'],
-      costo: json['costo'],
-      price: json['precio'],
-      stock: json['stock'],
-      inventarioMinimo: json['inventarioMinimo'],
+      costo: (json['costo'] as num).toDouble(),
+      price: (json['precio'] as num).toDouble(),
+      stock: json['stock'] != null ? (json['stock'] as num).toDouble() : null,
+      inventarioMinimo: (json['inventarioMinimo'] as num).toDouble(),
       unidad: json['unidad'],
       imageUrl: json['imageUrl'],
-      timestamp: (json['timestamp'] as Timestamp).toDate(),
+      timestamp:
+          json['timestamp'] is Timestamp
+              ? (json['timestamp'] as Timestamp).toDate()
+              : DateTime.parse(json['timestamp']),
       packageProducts:
           (json['packageProducts'] as List<dynamic>?)
               ?.map((e) => PackageItem.fromJson(e))

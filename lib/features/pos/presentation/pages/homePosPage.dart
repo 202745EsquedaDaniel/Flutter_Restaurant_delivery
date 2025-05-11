@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myapp/features/auth/presentation/cubits/auth_cubit.dart';
-import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
-import 'package:myapp/features/catalog/presentation/cubits/restaurant_states.dart';
+import 'package:myapp/features/catalog/domain/entities/product.dart';
+import 'package:myapp/features/catalog/presentation/cubits/cart_cubit.dart';
+import 'package:myapp/features/catalog/presentation/cubits/cart_states.dart';
+import 'package:myapp/features/catalog/presentation/cubits/catalog_cubit.dart';
+import 'package:myapp/features/catalog/presentation/cubits/catalog_states.dart';
 import 'package:myapp/features/pos/presentation/components/items_POS_order.dart';
 import 'package:myapp/features/pos/presentation/components/pos_header.dart';
 import 'package:myapp/features/pos/presentation/components/pos_search_box.dart';
 import 'package:myapp/features/pos/presentation/components/product_POS_tile.dart';
-import 'package:myapp/features/kiosk/domain/entities/food.dart';
 
 class HomePosPage extends StatefulWidget {
   const HomePosPage({Key? key}) : super(key: key);
@@ -17,9 +19,17 @@ class HomePosPage extends StatefulWidget {
 }
 
 class _HomePosPageState extends State<HomePosPage> {
-  // auth cubit
   late final authCubit = context.read<AuthCubit>();
-  FoodCategory selectedCategory = FoodCategory.burgers;
+  String selectedCategory = '';
+
+  @override
+  void initState() {
+    super.initState();
+    final orgId = authCubit.currentUser?.orgId;
+    if (orgId != null) {
+      context.read<CatalogCubit>().fetchProductsByOrgId(orgId);
+    }
+  }
 
   Widget _row(String label, double value) {
     return Row(
@@ -49,121 +59,107 @@ class _HomePosPageState extends State<HomePosPage> {
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Carrito a la izquierda
+        // Carrito
         Expanded(
           flex: 5,
           child: Column(
             children: [
               PosHeader(
-                title: 'Hola ${authCubit.currentUser?.name}!',
-                subTitle: 'Table 8',
+                title: 'Hola ${authCubit.currentUser?.name ?? ''}!',
+                subTitle: 'Sucursal ${authCubit.currentUser?.branchId ?? ''}',
                 child: Container(),
               ),
-
               const SizedBox(height: 20),
               Expanded(
-                child: ListView(
-                  children: [
-                    BlocBuilder<RestaurantCubit, RestaurantState>(
-                      builder: (context, state) {
-                        if (state is! RestaurantLoaded)
-                          return const SizedBox.shrink();
-                        return Column(
-                          children:
-                              state.cart.map((item) {
-                                return OrderPosItem(
-                                  image: item.food.imagePath,
-                                  title: item.food.name,
-                                  qty: item.quantity.toString(),
-                                  price:
-                                      '\$${item.food.price.toStringAsFixed(2)}',
-                                );
-                              }).toList(),
-                        );
-                      },
-                    ),
-                  ],
+                child: BlocBuilder<CartCubit, CartState>(
+                  builder: (context, state) {
+                    return ListView(
+                      children:
+                          state.items.map((product) {
+                            return OrderPosItem(
+                              image: product.imageUrl,
+                              title: product.name,
+                              qty: '1',
+                              price: '\$${product.price.toStringAsFixed(2)}',
+                            );
+                          }).toList(),
+                    );
+                  },
                 ),
               ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  margin: const EdgeInsets.symmetric(vertical: 10),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    color: const Color(0xff1f2029),
-                  ),
-                  child: Column(
-                    children: [
-                      BlocBuilder<RestaurantCubit, RestaurantState>(
-                        builder: (context, state) {
-                          if (state is! RestaurantLoaded)
-                            return const SizedBox.shrink();
-                          final subtotal = state.cart.fold(0.0, (total, item) {
-                            double itemTotal = item.food.price;
-                            for (final addon in item.selectedAddons) {
-                              itemTotal += addon.price;
-                            }
-                            return total + (itemTotal * item.quantity);
-                          });
-                          return Column(children: [_row('Total', subtotal)]);
-                        },
-                      ),
-                      const SizedBox(height: 30),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+              Container(
+                padding: const EdgeInsets.all(20),
+                margin: const EdgeInsets.symmetric(vertical: 10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  color: const Color(0xff1f2029),
+                ),
+                child: Column(
+                  children: [
+                    BlocBuilder<CartCubit, CartState>(
+                      builder: (context, state) {
+                        final total = state.items.fold<double>(
+                          0.0,
+                          (sum, item) => sum + item.price,
+                        );
+                        return _row('Total', total);
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    ElevatedButton(
+                      onPressed: () {
+                        context.read<CartCubit>().clearCart();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Carrito vaciado'),
+                            backgroundColor: Colors.redAccent,
                           ),
-                        ),
-                        onPressed: () {
-                          context.read<RestaurantCubit>().clearCart();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text('Carrito vaciado'),
-                              backgroundColor: Colors.redAccent,
-                            ),
-                          );
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: const [
-                            Icon(Icons.print, size: 16),
-                            SizedBox(width: 6),
-                            Text('Vaciar Carrito'),
-                          ],
-                        ),
+                        );
+                      },
+
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: const [
+                          Icon(Icons.print, size: 16),
+                          SizedBox(width: 6),
+                          Text('Vaciar Carrito'),
+                        ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
         ),
+
+        // Separador
         Expanded(flex: 1, child: Container()),
-        // Catálogo a la derecha
+
+        // Catálogo
         Expanded(
-          flex: 14,
+          flex: 15,
           child: Column(
             children: [
               PosHeader(
                 title: 'Lorem Restaurant',
-                subTitle: 'Hola 2!',
+                subTitle: 'POS',
                 child: const PosSearchBox(),
               ),
-
-              Container(
+              // Categorías
+              SizedBox(
                 height: 100,
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children:
-                      FoodCategory.values.map((cat) {
-                        final name = cat.toString().split('.').last;
-                        final iconPath = 'icons/icon-${name.toLowerCase()}.png';
-                        final isActive = selectedCategory == cat;
+                child: BlocBuilder<CatalogCubit, CatalogState>(
+                  builder: (context, state) {
+                    if (state is! CatalogLoaded) return const SizedBox();
+                    final categories =
+                        state.products.map((p) => p.categoria).toSet().toList();
+                    return ListView.builder(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: categories.length,
+                      itemBuilder: (_, i) {
+                        final cat = categories[i];
+                        final isActive = cat == selectedCategory;
                         return Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 6.0),
                           child: GestureDetector(
@@ -173,81 +169,75 @@ class _HomePosPageState extends State<HomePosPage> {
                                 color:
                                     isActive ? Colors.orange : Colors.grey[850],
                                 borderRadius: BorderRadius.circular(12),
-                                border:
-                                    isActive
-                                        ? Border.all(
-                                          color: Colors.orangeAccent,
-                                          width: 2,
-                                        )
-                                        : Border.all(color: Colors.transparent),
+                                border: Border.all(
+                                  color:
+                                      isActive
+                                          ? Colors.orangeAccent
+                                          : Colors.transparent,
+                                  width: 2,
+                                ),
                               ),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                                 vertical: 8,
                               ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset(
-                                    iconPath,
-                                    width: 32,
-                                    height: 32,
+                              child: Center(
+                                child: Text(
+                                  cat,
+                                  style: TextStyle(
                                     color: Colors.white,
+                                    fontWeight:
+                                        isActive
+                                            ? FontWeight.bold
+                                            : FontWeight.normal,
                                   ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    name,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight:
-                                          isActive
-                                              ? FontWeight.bold
-                                              : FontWeight.normal,
-                                    ),
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           ),
                         );
-                      }).toList(),
+                      },
+                    );
+                  },
                 ),
               ),
+              // Productos
               Expanded(
-                child: BlocBuilder<RestaurantCubit, RestaurantState>(
+                child: BlocBuilder<CatalogCubit, CatalogState>(
                   builder: (context, state) {
-                    if (state is! RestaurantLoaded) {
+                    if (state is! CatalogLoaded) {
                       return const Center(child: CircularProgressIndicator());
                     }
                     final products =
-                        state.menu
-                            .where((f) => f.category == selectedCategory)
+                        state.products
+                            .where(
+                              (p) =>
+                                  selectedCategory.isEmpty ||
+                                  p.categoria == selectedCategory,
+                            )
                             .toList();
                     return GridView.count(
                       crossAxisCount: 4,
                       childAspectRatio: (1 / 1.2),
                       children:
-                          products.map((food) {
+                          products.map((product) {
                             return GestureDetector(
                               onTap: () {
-                                context.read<RestaurantCubit>().addToCart(
-                                  food,
-                                  [],
-                                );
+                                context.read<CartCubit>().addToCart(product);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '${food.name} añadido al carrito',
+                                      '${product.name} añadido al carrito',
                                     ),
                                     backgroundColor: Colors.green,
                                   ),
                                 );
                               },
                               child: ProductPosTile(
-                                image: food.imagePath,
-                                title: food.name,
-                                price: '\$${food.price.toStringAsFixed(2)}',
-                                item: '${food.availableAddons.length} add-ons',
+                                image: product.imageUrl,
+                                title: product.name,
+                                price: '\$${product.price.toStringAsFixed(2)}',
+                                item: product.unidad,
                               ),
                             );
                           }).toList(),
@@ -255,10 +245,64 @@ class _HomePosPageState extends State<HomePosPage> {
                   },
                 ),
               ),
+              Container(
+                height: 80,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
+                color: const Color(0xff1f2029),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: const [
+                    _ActionButton(icon: Icons.credit_card, label: "Tarjeta"),
+                    _ActionButton(icon: Icons.attach_money, label: "Efectivo"),
+                    _ActionButton(icon: Icons.receipt_long, label: "Imprimir"),
+                    _ActionButton(icon: Icons.person, label: "Cliente"),
+                    _ActionButton(icon: Icons.point_of_sale, label: "Corte"),
+                    _ActionButton(
+                      icon: Icons.local_shipping,
+                      label: "Para llevar",
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _ActionButton({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: ElevatedButton(
+        onPressed: () {},
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.orange,
+          padding: const EdgeInsets.symmetric(vertical: 10),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(icon, size: 18, color: Colors.white),
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 11, color: Colors.white),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

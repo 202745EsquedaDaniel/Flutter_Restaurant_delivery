@@ -5,10 +5,11 @@ import 'package:myapp/features/auth/presentation/cubits/auth_cubit.dart';
 import 'package:myapp/features/auth/presentation/cubits/auth_states.dart';
 import 'package:myapp/features/auth/presentation/pages/auth_page.dart';
 import 'package:myapp/features/catalog/data/firebase_catalog_repo.dart';
+import 'package:myapp/features/catalog/presentation/cubits/cart_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/catalog_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
 import 'package:myapp/features/kiosk/presentation/pages/home_page.dart';
-import 'package:myapp/features/pos/presentation/pages/POS_page.dart';
+import 'package:myapp/features/pos/presentation/pages/homePosPage.dart';
 import 'package:myapp/themes/light_mode.dart';
 
 /*
@@ -53,6 +54,11 @@ class MyApp extends StatelessWidget {
         ),
         // restaurant cubit
         BlocProvider(create: (_) => RestaurantCubit()),
+        BlocProvider(create: (_) => CartCubit()),
+        // catalog cubit
+        BlocProvider(
+          create: (context) => CatalogCubit(catalogRepo: FirebaseCatalogRepo()),
+        ),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
