@@ -10,6 +10,8 @@ import 'package:myapp/features/catalog/presentation/cubits/catalog_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/restaurant_cubit.dart';
 import 'package:myapp/features/kiosk/presentation/pages/home_page.dart';
 import 'package:myapp/features/pos/presentation/pages/homePosPage.dart';
+import 'package:myapp/features/sales/data/firebase_sale_repo.dart';
+import 'package:myapp/features/sales/presentation/cubits/sales_cubit.dart';
 import 'package:myapp/themes/light_mode.dart';
 
 /*
@@ -36,6 +38,9 @@ class MyApp extends StatelessWidget {
   // auth repo
   final firebaseAuthRepo = FirebaseAuthRepo();
 
+  // sales repo
+  final firebaseSaleRepo = FirebaseSalesRepo();
+
   // catalog repo
 
   // profile repo
@@ -55,6 +60,8 @@ class MyApp extends StatelessWidget {
         // restaurant cubit
         BlocProvider(create: (_) => RestaurantCubit()),
         BlocProvider(create: (_) => CartCubit()),
+        BlocProvider(create: (_) => SalesCubit(saleRepo: firebaseSaleRepo)),
+
         // catalog cubit
         BlocProvider(
           create: (context) => CatalogCubit(catalogRepo: FirebaseCatalogRepo()),

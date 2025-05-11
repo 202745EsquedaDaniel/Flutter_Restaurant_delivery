@@ -10,6 +10,8 @@ import 'package:myapp/features/pos/presentation/components/items_POS_order.dart'
 import 'package:myapp/features/pos/presentation/components/pos_header.dart';
 import 'package:myapp/features/pos/presentation/components/pos_search_box.dart';
 import 'package:myapp/features/pos/presentation/components/product_POS_tile.dart';
+import 'package:myapp/features/sales/domain/entities/sale.dart';
+import 'package:myapp/features/sales/presentation/cubits/sales_cubit.dart';
 
 class HomePosPage extends StatefulWidget {
   const HomePosPage({Key? key}) : super(key: key);
@@ -50,6 +52,46 @@ class _HomePosPageState extends State<HomePosPage> {
           ),
         ),
       ],
+    );
+  }
+
+  void _handleCreateSale(BuildContext context, {required String type}) {
+    final cartCubit = context.read<CartCubit>();
+    final salesCubit = context.read<SalesCubit>();
+    final authCubit = context.read<AuthCubit>();
+
+    final products = cartCubit.state.items;
+    final orgId = authCubit.currentUser?.orgId ?? '';
+    final clientId = "POS"; // o puedes permitir selección
+
+    if (products.isEmpty || orgId.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No hay productos o falta organización"),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    final total = products.fold<double>(0.0, (sum, p) => sum + p.price);
+
+    final sale = Sale(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      orgId: orgId,
+      clientId: clientId,
+      type: type,
+      products: products,
+      total: total,
+      totalPaid: total,
+      timestamp: DateTime.now(),
+    );
+
+    salesCubit.createSale(sale);
+    cartCubit.clearCart();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Venta enviada correctamente ✅")),
     );
   }
 
@@ -254,8 +296,13 @@ class _HomePosPageState extends State<HomePosPage> {
                 color: const Color(0xff1f2029),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    _ActionButton(icon: Icons.credit_card, label: "Tarjeta"),
+                  children: [
+                    _ActionButton(
+                      icon: Icons.credit_card,
+                      label: "Tarjeta",
+                      onTap: () => _handleCreateSale(context, type: 'Tarjeta'),
+                    ),
+
                     _ActionButton(icon: Icons.attach_money, label: "Efectivo"),
                     _ActionButton(icon: Icons.receipt_long, label: "Imprimir"),
                     _ActionButton(icon: Icons.person, label: "Cliente"),
@@ -278,13 +325,15 @@ class _HomePosPageState extends State<HomePosPage> {
 class _ActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
-  const _ActionButton({required this.icon, required this.label});
+  final VoidCallback? onTap;
+
+  const _ActionButton({required this.icon, required this.label, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return Expanded(
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: onTap,
         style: ElevatedButton.styleFrom(
           backgroundColor: Colors.orange,
           padding: const EdgeInsets.symmetric(vertical: 10),
