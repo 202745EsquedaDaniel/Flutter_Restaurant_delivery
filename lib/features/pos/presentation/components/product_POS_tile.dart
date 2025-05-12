@@ -26,14 +26,36 @@ class ProductPosTile extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            height: 130,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16),
-              image: DecorationImage(
-                image: AssetImage(image),
-                fit: BoxFit.cover,
-              ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(
+              16,
+            ), // Preserves the rounded corners
+            child: Image.network(
+              image,
+              height: 130, // Preserves the height
+              width:
+                  double
+                      .infinity, // Ensures the image takes available width for BoxFit.cover
+              fit: BoxFit.cover, // Preserves the image fit
+              errorBuilder: (context, error, stackTrace) {
+                // A fallback widget to display when the image fails to load
+                return Container(
+                  height: 130,
+                  width: double.infinity,
+                  color: const Color(
+                    0xff3a3b44,
+                  ), // A background color for the error state
+                  child: const Center(
+                    child: Icon(
+                      Icons.image_not_supported,
+                      color:
+                          Colors
+                              .white70, // Icon color for better visibility on dark background
+                      size: 40, // A reasonable icon size
+                    ),
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 10),

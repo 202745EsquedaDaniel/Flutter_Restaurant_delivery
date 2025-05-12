@@ -43,6 +43,8 @@ class _FoodPageState extends State<FoodPage> {
 
   @override
   Widget build(BuildContext context) {
+    final decodedUrl = Uri.decodeFull(widget.food.imagePath);
+
     return Stack(
       children: [
         // scaffold UI
@@ -51,7 +53,14 @@ class _FoodPageState extends State<FoodPage> {
             child: Column(
               children: [
                 // food image
-                Image.asset(widget.food.imagePath, height: 480),
+                Image.network(
+                  decodedUrl,
+                  height: 480,
+                  fit: BoxFit.cover,
+                  errorBuilder:
+                      (context, error, stackTrace) =>
+                          const Icon(Icons.image_not_supported),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(25.0),
                   child: Column(

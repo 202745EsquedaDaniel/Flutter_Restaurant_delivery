@@ -30,10 +30,13 @@ class MyCartTile extends StatelessWidget {
                 // image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(
+                  child: Image.network(
                     cartItem.food.imagePath,
                     height: 100,
                     width: 100,
+                    errorBuilder:
+                        (context, error, stackTrace) =>
+                            const Icon(Icons.image_not_supported),
                   ),
                 ),
                 const SizedBox(width: 10),

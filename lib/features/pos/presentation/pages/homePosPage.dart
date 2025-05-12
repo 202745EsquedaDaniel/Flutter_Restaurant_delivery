@@ -260,6 +260,8 @@ class _HomePosPageState extends State<HomePosPage> {
                           products.map((product) {
                             return GestureDetector(
                               onTap: () {
+                                print('🖼️ image URL: ${product.imageUrl}');
+
                                 context.read<CartCubit>().addToCart(product);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(

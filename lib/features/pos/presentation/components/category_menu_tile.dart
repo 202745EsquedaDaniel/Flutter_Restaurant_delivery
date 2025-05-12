@@ -28,7 +28,13 @@ class CategoryMenuTile extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(icon, width: 38),
+          Image.network(
+            icon,
+            width: 38,
+            errorBuilder:
+                (context, error, stackTrace) =>
+                    const Icon(Icons.image_not_supported),
+          ),
           const SizedBox(width: 8),
           Text(
             title,

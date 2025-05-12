@@ -9,6 +9,8 @@ class FoodTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final decodedUrl = Uri.decodeFull(food.imagePath);
+
     return Column(
       children: [
         GestureDetector(
@@ -44,7 +46,14 @@ class FoodTile extends StatelessWidget {
                 // food image
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: Image.asset(food.imagePath, height: 120, width: 120),
+                  child: Image.network(
+                    decodedUrl,
+                    height: 120,
+                    width: 120,
+                    errorBuilder:
+                        (context, error, stackTrace) =>
+                            const Icon(Icons.image_not_supported),
+                  ),
                 ),
               ],
             ),
