@@ -1,15 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:myapp/features/auth/presentation/cubits/auth_cubit.dart';
-import 'package:myapp/features/catalog/domain/entities/product.dart';
 import 'package:myapp/features/catalog/presentation/cubits/cart_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/cart_states.dart';
 import 'package:myapp/features/catalog/presentation/cubits/catalog_cubit.dart';
 import 'package:myapp/features/catalog/presentation/cubits/catalog_states.dart';
+import 'package:myapp/features/pos/presentation/components/cash_dialog.dart';
 import 'package:myapp/features/pos/presentation/components/items_POS_order.dart';
 import 'package:myapp/features/pos/presentation/components/pos_header.dart';
 import 'package:myapp/features/pos/presentation/components/pos_search_box.dart';
 import 'package:myapp/features/pos/presentation/components/product_POS_tile.dart';
+import 'package:myapp/features/sales/domain/entities/cashBreakdown.dart';
 import 'package:myapp/features/sales/domain/entities/sale.dart';
 import 'package:myapp/features/sales/presentation/cubits/sales_cubit.dart';
 
@@ -55,26 +56,19 @@ class _HomePosPageState extends State<HomePosPage> {
     );
   }
 
-  void _handleCreateSale(BuildContext context, {required String type}) {
+  void _handleCreateSale(
+    BuildContext context, {
+    required String type,
+    required double total,
+    CashBreakdown? cashBreakdown,
+  }) {
     final cartCubit = context.read<CartCubit>();
     final salesCubit = context.read<SalesCubit>();
     final authCubit = context.read<AuthCubit>();
 
     final products = cartCubit.state.items;
     final orgId = authCubit.currentUser?.orgId ?? '';
-    final clientId = "POS"; // o puedes permitir selección
-
-    if (products.isEmpty || orgId.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("No hay productos o falta organización"),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
-    }
-
-    final total = products.fold<double>(0.0, (sum, p) => sum + p.price);
+    final clientId = "POS";
 
     final sale = Sale(
       id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -85,6 +79,7 @@ class _HomePosPageState extends State<HomePosPage> {
       total: total,
       totalPaid: total,
       timestamp: DateTime.now(),
+      cashBreakdown: cashBreakdown, // Agregado
     );
 
     salesCubit.createSale(sale);
@@ -300,10 +295,87 @@ class _HomePosPageState extends State<HomePosPage> {
                     _ActionButton(
                       icon: Icons.credit_card,
                       label: "Tarjeta",
-                      onTap: () => _handleCreateSale(context, type: 'Tarjeta'),
+                      onTap: () {
+                        final cartCubit = context.read<CartCubit>();
+                        final total = cartCubit.state.items.fold<double>(
+                          0.0,
+                          (sum, p) => sum + p.price,
+                        );
+
+                        _handleCreateSale(
+                          context,
+                          type: 'Tarjeta',
+                          total: total,
+                          cashBreakdown: null, // explícitamente nulo
+                        );
+                      },
                     ),
 
-                    _ActionButton(icon: Icons.attach_money, label: "Efectivo"),
+                    _ActionButton(
+                      icon: Icons.attach_money,
+                      label: "Efectivo",
+                      onTap: () async {
+                        final cartCubit = context.read<CartCubit>();
+                        final salesCubit = context.read<SalesCubit>();
+                        final authCubit = context.read<AuthCubit>();
+                        final products = cartCubit.state.items;
+                        final orgId = authCubit.currentUser?.orgId ?? '';
+                        final clientId = "POS";
+
+                        if (products.isEmpty || orgId.isEmpty) return;
+
+                        final total = products.fold<double>(
+                          0.0,
+                          (sum, p) => sum + p.price,
+                        );
+                        final breakdown = await showCashBreakdownDialog(
+                          context,
+                          total,
+                        );
+
+                        if (breakdown == null) return;
+
+                        final totalPaid = breakdown
+                            .toJson()
+                            .entries
+                            .fold<double>(
+                              0.0,
+                              (sum, e) =>
+                                  sum +
+                                  (int.parse(
+                                        e.key
+                                            .replaceAll('bill', '')
+                                            .replaceAll('coin', ''),
+                                      ) *
+                                      e.value),
+                            );
+
+                        final sale = Sale(
+                          id: DateTime.now().millisecondsSinceEpoch.toString(),
+                          orgId: orgId,
+                          clientId: clientId,
+                          cajaId: "3",
+                          type: 'Efectivo',
+                          products: products,
+                          total: total,
+                          totalPaid: totalPaid,
+                          timestamp: DateTime.now(),
+                          cashBreakdown: breakdown,
+                        );
+
+                        salesCubit.createSale(sale);
+                        cartCubit.clearCart();
+
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              "Venta en efectivo registrada por \$${totalPaid.toStringAsFixed(2)}",
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+
                     _ActionButton(icon: Icons.receipt_long, label: "Imprimir"),
                     _ActionButton(icon: Icons.person, label: "Cliente"),
                     _ActionButton(icon: Icons.point_of_sale, label: "Corte"),
